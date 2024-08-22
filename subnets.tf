@@ -1,4 +1,3 @@
-# create private and public subnet in 3 AZ
 resource "aws_subnet" "private-eu-central-1a" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.0.0/24"

@@ -9,7 +9,6 @@ resource "aws_vpc" "main" {
   }
 }
 
-# SSH connection 
 resource "aws_security_group" "SSH_Security-group" {
   name        = "SSH_Security-group"
   description = "SSH connect for vpc"

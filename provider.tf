@@ -1,4 +1,3 @@
-# I chose AWS because I trained on it
 provider "aws" {
   region = "eu-central-1"
 }
