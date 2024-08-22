@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      run: django-app
+  template:
+    metadata:
+      labels:
+        run: django-app
+    spec:
+      containers:
+      - name: django-container
+        image: django:latest
+        ports:
+        - containerPort: 8000  # Django-приложение обычно работает на порту 8000
+        command: ["gunicorn", "--bind", "0.0.0.0:8000", "myproject.wsgi:application"]  # Запуск Django через Gunicorn
+        resources:
+          limits:
+            cpu: 150m
+            # Память стабильно используется на уровне 128MB
+            memory: "128Mi"
+          requests:
+            # После пиковых нагрузок требуется 0.1 CPU
+            cpu: 100m
+            # Память стабильно используется на уровне 128MB
+            memory: "128Mi"
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: django-app
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: django-app
+  # Минимум 2 пода для нагрузки ночью
+  minReplicas: 2
+  # 4 пода создаются для пиковых нагрузок днем
+  maxReplicas: 4
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
